@@ -8,6 +8,8 @@ services:
   rsshub:
     image: diygod/rsshub:latest
     container_name: rsshub
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     ports:
       - "1200:1200"
