@@ -1,14 +1,21 @@
 # RSSHub deployment for Portainer (nj106 fork).
-# - bridge network mode (no dedicated project network)
 # - host port 1200 -> container 1200
+# - attached to the shared `rsshub-net` network (external) so FreshRSS can
+#   reach it at http://rsshub:1200 via Docker's embedded DNS.
+#   (Exception to the bridge-only rule: see freshrss compose for details.)
 # NOTE: this file replaces upstream's docker-compose.yml for Portainer Git deployment.
 services:
   rsshub:
     image: diygod/rsshub:latest
     container_name: rsshub
-    network_mode: bridge
     restart: unless-stopped
     ports:
       - "1200:1200"
     environment:
       TZ: "Asia/Shanghai"
+    networks:
+      - rsshub-net
+
+networks:
+  rsshub-net:
+    external: true
