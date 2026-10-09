@@ -6,7 +6,7 @@
 # NOTE: this file replaces upstream's docker-compose.yml for Portainer Git deployment.
 services:
   rsshub:
-    image: diygod/rsshub:latest
+    image: diygod/rsshub:chromium-bundled
     container_name: rsshub
     labels:
       - com.centurylinklabs.watchtower.enable=true
