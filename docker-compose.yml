@@ -15,6 +15,8 @@ services:
       - "1200:1200"
     environment:
       TZ: "Asia/Shanghai"
+      REQUEST_TIMEOUT: "60000"
+      REQUEST_RETRY: "4"
     networks:
       - rsshub-net
 
