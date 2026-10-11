@@ -1,52 +1,36 @@
+# RSSHub deployment for Portainer (nj106 fork).
+# - host port 1200 -> container 1200
+# - attached to the shared `rsshub-net` network (external) so FreshRSS can
+#   reach it at http://rsshub:1200 via Docker's embedded DNS.
+#   (Exception to the bridge-only rule: see freshrss compose for details.)
+# NOTE: this file replaces upstream's docker-compose.yml for Portainer Git deployment.
 services:
-    rsshub:
-        # two ways to enable Playwright:
-        # * comment out marked lines, then use this image instead: diygod/rsshub:chromium-bundled
-        # * (consumes more disk space and memory) leave everything unchanged
-        image: diygod/rsshub # or ghcr.io/diygod/rsshub
-        restart: always
-        ports:
-            - '1200:1200'
-        environment:
-            NODE_ENV: production
-            CACHE_TYPE: redis
-            REDIS_URL: 'redis://redis:6379/'
-            PLAYWRIGHT_CDP_ENDPOINT: 'ws://browserless:3000?token=${BROWSERLESS_TOKEN:-rsshub}' # marked
-        healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:1200/healthz']
-            interval: 30s
-            timeout: 10s
-            retries: 3
-        depends_on:
-            - redis
-            - browserless # marked
+  rsshub:
+    image: diygod/rsshub:chromium-bundled
+    container_name: rsshub
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://127.0.0.1:1200/healthz || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ports:
+      - "1200:1200"
+    environment:
+      TZ: "Asia/Shanghai"
+      REQUEST_TIMEOUT: "60000"
+      REQUEST_RETRY: "4"
+    networks:
+      - rsshub-net
 
-    browserless: # marked
-        image: ghcr.io/browserless/chromium # marked
-        restart: always # marked
-        environment: # marked
-            TOKEN: '${BROWSERLESS_TOKEN:-rsshub}' # marked
-        ulimits: # marked
-            core: # marked
-                hard: 0 # marked
-                soft: 0 # marked
-        healthcheck: # marked
-            test: ['CMD-SHELL', 'curl -f "http://localhost:3000/pressure?token=$$TOKEN"'] # marked
-            interval: 30s # marked
-            timeout: 10s # marked
-            retries: 3 # marked
-
-    redis:
-        image: redis:alpine
-        restart: always
-        volumes:
-            - redis-data:/data
-        healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 5s
-
-volumes:
-    redis-data:
+networks:
+  rsshub-net:
+    external: true
