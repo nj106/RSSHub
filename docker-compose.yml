@@ -28,8 +28,39 @@ services:
             TZ: 'Asia/Shanghai'
             REQUEST_TIMEOUT: '60000'
             REQUEST_RETRY: '4'
+            CACHE_TYPE: 'redis'
+            REDIS_URL: 'redis://rsshub-redis:6379/'
+        depends_on:
+            redis:
+                condition: service_healthy
         networks:
             - rsshub-net
+
+    redis:
+        image: redis:alpine
+        container_name: rsshub-redis
+        labels:
+            - com.centurylinklabs.watchtower.enable=true
+        restart: unless-stopped
+        logging:
+            driver: json-file
+            options:
+                max-size: '10m'
+                max-file: '3'
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 30s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        volumes:
+            - rsshub_redis_data:/data
+        networks:
+            - rsshub-net
+
+volumes:
+    rsshub_redis_data:
+        name: rsshub_redis_data
 
 networks:
     rsshub-net:
