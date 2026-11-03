@@ -37,7 +37,7 @@ services:
             - rsshub-net
 
     redis:
-        image: redis:alpine
+        image: redis:latest
         container_name: rsshub-redis
         labels:
             - com.centurylinklabs.watchtower.enable=true
