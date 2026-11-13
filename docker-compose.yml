@@ -25,10 +25,10 @@ services:
         ports:
             - '1200:1200'
         environment:
-            TZ: 'Asia/Shanghai'
-            REQUEST_TIMEOUT: '60000'
-            REQUEST_RETRY: '4'
-            CACHE_TYPE: 'redis'
+            TZ: '${TZ}'
+            REQUEST_TIMEOUT: '${REQUEST_TIMEOUT}'
+            REQUEST_RETRY: '${REQUEST_RETRY}'
+            CACHE_TYPE: '${CACHE_TYPE}'
             REDIS_URL: 'redis://rsshub-redis:6379/'
         depends_on:
             redis:
